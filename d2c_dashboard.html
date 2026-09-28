@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>D2C Channel &amp; Product Performance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0e1118;--side:#131722;--card:#171b26;--line:#252b3b;--tx:#e8ebf3;--mu:#8b93a7;--ac:#7c8cff;--gold:#e6b422;--silver:#b8c0cc;--bronze:#cd7f32;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.side{position:fixed;inset:0 auto 0 0;width:260px;background:var(--side);border-right:1px solid var(--line);padding:20px 16px;overflow-y:auto}
+.brand{display:flex;gap:10px;align-items:center;margin-bottom:22px}
+.logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--ac),#34d3a8);display:grid;place-items:center;font-weight:700;color:#0b0e16}
+.brand b{display:block;font-size:15px}.brand span{font-size:11px;color:var(--mu);line-height:1.3;display:block}
+.fg{margin-bottom:16px}
+.fg label{display:block;font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+select{width:100%;font:inherit;font-size:13px;color:var(--tx);background:#0f131c;border:1px solid var(--line);border-radius:8px;padding:7px 8px}
+select[multiple]{padding:4px}select[multiple] option{padding:3px 6px;border-radius:4px}
+select[multiple] option:checked{background:var(--ac) linear-gradient(0deg,var(--ac),var(--ac));color:#0b0e16}
+.hint{font-size:11px;color:var(--mu);margin-top:4px}
+.range{display:flex;gap:8px}
+#reset{width:100%;font:inherit;font-weight:600;color:#0b0e16;background:var(--ac);border:0;border-radius:8px;padding:10px;cursor:pointer}
+#reset:hover{filter:brightness(1.1)}
+#showing{margin-top:10px;font-size:12px;color:var(--mu);text-align:center}
+.main{margin-left:260px;padding:22px 24px 48px;max-width:1500px}
+.top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+h1{font-size:22px;margin:0 0 2px}.sub{color:var(--mu);margin:0}
+.badges{display:flex;gap:6px}.badge{font-size:11px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);color:var(--mu);background:var(--card);white-space:nowrap}
+h2{font-size:15px;margin:32px 0 12px;display:flex;align-items:center;gap:8px}
+h2 small{color:var(--mu);font-weight:400;font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:18px}
+.kpi{position:relative;overflow:hidden;padding-top:17px}
+.kpi::before{content:'';position:absolute;inset:0 0 auto 0;height:3px;background:var(--k)}
+.kpi .ic{position:absolute;top:14px;right:14px;width:22px;height:22px;color:var(--k);opacity:.4}
+.kpi .ic svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.kpi .l{color:var(--mu);font-size:12px;text-transform:uppercase;letter-spacing:.06em}.kpi .v{font-size:24px;font-weight:700;margin:2px 0}.kpi .c{font-size:11px;color:var(--mu)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:12px}
+.ch{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:10px}
+.ch h3{font-size:13px;margin:0;font-weight:600}.ch span{font-size:11px;color:var(--mu);white-space:nowrap}
+.cv{position:relative;height:260px}
+.leg{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:10px;font-size:11px;color:var(--mu)}
+.leg span{display:inline-flex;align-items:center;gap:5px}
+.leg i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.notice{background:#3a2a12;border:1px solid #6b4a15;color:#ffcf85;border-radius:10px;padding:10px 14px;margin-top:16px}
+.cnt{font-size:11px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--ac);color:#0b0e16}
+.tw{overflow-x:auto;max-height:460px;overflow-y:auto;padding:0}
+table{border-collapse:collapse;width:100%;min-width:900px;font-size:13px}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{position:sticky;top:0;background:#1d2231;color:var(--mu);font-weight:500}
+td.n,th.n{text-align:right}
+.pill{display:inline-block;padding:1px 10px;border-radius:999px;font-size:11px;font-weight:600;border:1px solid}
+.pill.gold{color:var(--gold);border-color:var(--gold);background:#e6b42218}
+.pill.silver{color:var(--silver);border-color:var(--silver);background:#b8c0cc18}
+.pill.bronze{color:var(--bronze);border-color:var(--bronze);background:#cd7f3218}
+.empty{color:var(--mu);text-align:center;padding:20px}
+@media(max-width:900px){.side{position:static;width:auto;border-right:0;border-bottom:1px solid var(--line)}.main{margin-left:0;padding:18px 14px 40px}}
+</style>
+</head>
+<body>
+<aside class="side">
+  <div class="brand"><div class="logo">D</div><div><b>D2C Analytics</b><span>Beauty &amp; wellness performance</span></div></div>
+  <div class="fg"><label for="f-channel">Channel</label><select id="f-channel" multiple></select><div class="hint">Ctrl+click to multi-select</div></div>
+  <div class="fg"><label for="f-category">Category</label><select id="f-category" multiple></select><div class="hint">Ctrl+click to multi-select</div></div>
+  <div class="fg"><label for="f-product">Product</label><select id="f-product"></select></div>
+  <div class="fg"><label for="f-segment">Customer Segment</label><select id="f-segment"></select></div>
+  <div class="fg"><label>Month Range</label><div class="range"><select id="f-from" aria-label="From month"></select><select id="f-to" aria-label="To month"></select></div></div>
+  <button id="reset" type="button">Reset Filters</button>
+  <div id="showing"></div>
+</aside>
+<main class="main">
+  <div class="top">
+    <div><h1>Channel &amp; Product Performance</h1><p class="sub" id="dsub"></p></div>
+    <div class="badges"><span class="badge">Standalone</span><span class="badge">No Server Required</span></div>
+  </div>
+  <div id="notice"></div>
+  <div class="kpis" id="kpis"></div>
+  <div id="charts"></div>
+  <h2>📋 Orders Detail</h2>
+  <div class="card tw" style="padding:0">
+    <div style="padding:12px 14px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--line)"><b style="font-size:13px">Filtered Orders</b><span class="cnt" id="tcnt"></span></div>
+    <table><thead id="thead"></thead><tbody id="tbody"></tbody></table>
+  </div>
+</main>
+
+<script>
+
+const ANALYTICS_DATA = [
+{"order_id":1001,"order_date":"2024-11-23","customer_id":"C103","city":"Chennai","state":"TN","category":"Haircare","product_name":"Hair Mask","quantity":2,"channel":"Website","MRP":1047,"discount_pct":12,"customer_segment":"Gold","revenue":1842.72},
+{"order_id":1002,"order_date":"2024-10-29","customer_id":"C113","city":"Mumbai","state":"MH","category":"Skincare","product_name":"Sunscreen SPF50","quantity":2,"channel":"Amazon","MRP":1442,"discount_pct":20,"customer_segment":"Silver","revenue":2307.2},
+{"order_id":1003,"order_date":"2024-04-11","customer_id":"C122","city":"Jaipur","state":"RJ","category":"Makeup","product_name":"Lipstick","quantity":4,"channel":"App","MRP":955,"discount_pct":5,"customer_segment":"Silver","revenue":3629.0},
+{"order_id":1004,"order_date":"2024-12-23","customer_id":"C113","city":"Chennai","state":"TN","category":"Haircare","product_name":"Hair Mask","quantity":3,"channel":"Website","MRP":1047,"discount_pct":12,"customer_segment":"Silver","revenue":2764.08},
+{"order_id":1005,"order_date":"2024-07-02","customer_id":"C127","city":"Lucknow","state":"UP","category":"Wellness","product_name":"Collagen Supplement","quantity":4,"channel":"Website","MRP":1453,"discount_pct":12,"customer_segment":"Bronze","revenue":5114.56},
+{"order_id":1006,"order_date":"2024-10-09","customer_id":"C109","city":"Lucknow","state":"UP","category":"Wellness","product_name":"Ashwagandha","quantity":2,"channel":"App","MRP":1410,"discount_pct":5,"customer_segment":"Silver","revenue":2679.0},
+{"order_id":1007,"order_date":"2024-05-28","customer_id":"C102","city":"Hyderabad","state":"TS","category":"Skincare","product_name":"Face Wash","quantity":3,"channel":"App","MRP":1215,"discount_pct":0,"customer_segment":"Gold","revenue":3645.0},
+{"order_id":1008,"order_date":"2024-07-08","customer_id":"C111","city":"Chennai","state":"TN","category":"Skincare","product_name":"Night Cream","quantity":2,"channel":"App","MRP":1488,"discount_pct":5,"customer_segment":"Silver","revenue":2827.2},
+{"order_id":1009,"order_date":"2024-08-24","customer_id":"C112","city":"Jaipur","state":"RJ","category":"Haircare","product_name":"Conditioner","quantity":1,"channel":"Instagram","MRP":1395,"discount_pct":10,"customer_segment":"Silver","revenue":1255.5},
+{"order_id":1010,"order_date":"2024-07-24","customer_id":"C108","city":"Hyderabad","state":"TS","category":"Wellness","product_name":"Vitamin D3","quantity":4,"channel":"App","MRP":1449,"discount_pct":5,"customer_segment":"Gold","revenue":5506.2},
+{"order_id":1011,"order_date":"2024-05-15","customer_id":"C104","city":"Jaipur","state":"RJ","category":"Wellness","product_name":"Ashwagandha","quantity":4,"channel":"Instagram","MRP":1410,"discount_pct":10,"customer_segment":"Gold","revenue":5076.0},
+{"order_id":1012,"order_date":"2024-04-22","customer_id":"C104","city":"Kolkata","state":"WB","category":"Skincare","product_name":"Vitamin C Serum","quantity":1,"channel":"WhatsApp","MRP":1813,"discount_pct":7,"customer_segment":"Gold","revenue":1686.09},
+{"order_id":1013,"order_date":"2024-11-01","customer_id":"C102","city":"Ahmedabad","state":"GJ","category":"Makeup","product_name":"Eyeliner","quantity":3,"channel":"Website","MRP":1426,"discount_pct":8,"customer_segment":"Gold","revenue":3935.76},
+{"order_id":1014,"order_date":"2024-12-15","customer_id":"C128","city":"Chennai","state":"TN","category":"Wellness","product_name":"Collagen Supplement","quantity":3,"channel":"Website","MRP":1453,"discount_pct":12,"customer_segment":"Bronze","revenue":3835.92},
+{"order_id":1015,"order_date":"2024-05-14","customer_id":"C116","city":"Bengaluru","state":"KA","category":"Skincare","product_name":"Moisturizer","quantity":5,"channel":"Instagram","MRP":1358,"discount_pct":8,"customer_segment":"Silver","revenue":6246.8},
+{"order_id":1016,"order_date":"2024-03-23","customer_id":"C117","city":"Jaipur","state":"RJ","category":"Skincare","product_name":"Night Cream","quantity":3,"channel":"Instagram","MRP":1488,"discount_pct":10,"customer_segment":"Silver","revenue":4017.6},
+{"order_id":1017,"order_date":"2024-06-06","customer_id":"C107","city":"Hyderabad","state":"TS","category":"Skincare","product_name":"Vitamin C Serum","quantity":4,"channel":"App","MRP":1813,"discount_pct":5,"customer_segment":"Gold","revenue":6889.4},
+{"order_id":1018,"order_date":"2024-03-06","customer_id":"C121","city":"Jaipur","state":"RJ","category":"Haircare","product_name":"Conditioner","quantity":5,"channel":"App","MRP":1395,"discount_pct":5,"customer_segment":"Silver","revenue":6626.25},
+{"order_id":1019,"order_date":"2024-10-03","customer_id":"C124","city":"Hyderabad","state":"TS","category":"Wellness","product_name":"Probiotic Blend","quantity":3,"channel":"WhatsApp","MRP":1441,"discount_pct":8,"customer_segment":"Bronze","revenue":3977.16},
+{"order_id":1020,"order_date":"2024-03-02","customer_id":"C107","city":"Delhi","state":"DL","category":"Wellness","product_name":"Collagen Supplement","quantity":5,"channel":"App","MRP":1453,"discount_pct":10,"customer_segment":"Gold","revenue":6538.5},
+{"order_id":1021,"order_date":"2024-01-04","customer_id":"C102","city":"Mumbai","state":"MH","category":"Haircare","product_name":"Shampoo 250ml","quantity":1,"channel":"Amazon","MRP":2169,"discount_pct":12,"customer_segment":"Gold","revenue":1908.72},
+{"order_id":1022,"order_date":"2024-05-01","customer_id":"C108","city":"Kolkata","state":"WB","category":"Haircare","product_name":"Hair Oil","quantity":2,"channel":"Amazon","MRP":777,"discount_pct":20,"customer_segment":"Gold","revenue":1243.2},
+{"order_id":1023,"order_date":"2024-08-30","customer_id":"C107","city":"Kolkata","state":"WB","category":"Makeup","product_name":"Lipstick","quantity":1,"channel":"Instagram","MRP":955,"discount_pct":15,"customer_segment":"Gold","revenue":811.75},
+{"order_id":1024,"order_date":"2024-08-04","customer_id":"C113","city":"Mumbai","state":"MH","category":"Skincare","product_name":"Vitamin C Serum","quantity":4,"channel":"App","MRP":1813,"discount_pct":5,"customer_segment":"Silver","revenue":6889.4},
+{"order_id":1025,"order_date":"2024-04-08","customer_id":"C106","city":"Kolkata","state":"WB","category":"Haircare","product_name":"Scalp Serum","quantity":2,"channel":"Website","MRP":529,"discount_pct":5,"customer_segment":"Gold","revenue":1005.1},
+{"order_id":1026,"order_date":"2024-08-14","customer_id":"C125","city":"Jaipur","state":"RJ","category":"Skincare","product_name":"Vitamin C Serum","quantity":5,"channel":"App","MRP":1813,"discount_pct":5,"customer_segment":"Bronze","revenue":8611.75},
+{"order_id":1027,"order_date":"2024-03-26","customer_id":"C113","city":"Kolkata","state":"WB","category":"Haircare","product_name":"Scalp Serum","quantity":1,"channel":"WhatsApp","MRP":529,"discount_pct":5,"customer_segment":"Silver","revenue":502.55},
+{"order_id":1028,"order_date":"2024-05-15","customer_id":"C129","city":"Kolkata","state":"WB","category":"Wellness","product_name":"Probiotic Blend","quantity":5,"channel":"App","MRP":1441,"discount_pct":8,"customer_segment":"Bronze","revenue":6628.6},
+{"order_id":1029,"order_date":"2024-04-07","customer_id":"C109","city":"Mumbai","state":"MH","category":"Skincare","product_name":"Moisturizer","quantity":1,"channel":"Amazon","MRP":1358,"discount_pct":15,"customer_segment":"Silver","revenue":1154.3},
+{"order_id":1030,"order_date":"2024-09-28","customer_id":"C105","city":"Jaipur","state":"RJ","category":"Skincare","product_name":"Sunscreen SPF50","quantity":1,"channel":"WhatsApp","MRP":1442,"discount_pct":8,"customer_segment":"Gold","revenue":1326.64},
+{"order_id":1031,"order_date":"2024-03-02","customer_id":"C130","city":"Lucknow","state":"UP","category":"Haircare","product_name":"Hair Oil","quantity":5,"channel":"WhatsApp","MRP":777,"discount_pct":5,"customer_segment":"Bronze","revenue":3690.75},
+{"order_id":1032,"order_date":"2024-12-02","customer_id":"C118","city":"Jaipur","state":"RJ","category":"Wellness","product_name":"Omega 3","quantity":2,"channel":"App","MRP":1161,"discount_pct":5,"customer_segment":"Silver","revenue":2205.9},
+{"order_id":1033,"order_date":"2024-05-15","customer_id":"C112","city":"Chennai","state":"TN","category":"Makeup","product_name":"Foundation","quantity":1,"channel":"Amazon","MRP":171,"discount_pct":22,"customer_segment":"Silver","revenue":133.38},
+{"order_id":1034,"order_date":"2024-02-21","customer_id":"C102","city":"Hyderabad","state":"TS","category":"Wellness","product_name":"Vitamin D3","quantity":3,"channel":"Instagram","MRP":1449,"discount_pct":10,"customer_segment":"Gold","revenue":3912.3},
+{"order_id":1035,"order_date":"2024-05-25","customer_id":"C105","city":"Jaipur","state":"RJ","category":"Wellness","product_name":"Ashwagandha","quantity":5,"channel":"Instagram","MRP":1410,"discount_pct":10,"customer_segment":"Gold","revenue":6345.0},
+{"order_id":1036,"order_date":"2024-12-05","customer_id":"C103","city":"Bengaluru","state":"KA","category":"Wellness","product_name":"Collagen Supplement","quantity":1,"channel":"Instagram","MRP":1453,"discount_pct":15,"customer_segment":"Gold","revenue":1235.05},
+{"order_id":1037,"order_date":"2024-05-24","customer_id":"C119","city":"Pune","state":"MH","category":"Haircare","product_name":"Conditioner","quantity":5,"channel":"Website","MRP":1395,"discount_pct":8,"customer_segment":"Silver","revenue":6417.0},
+{"order_id":1038,"order_date":"2024-11-20","customer_id":"C113","city":"Chennai","state":"TN","category":"Skincare","product_name":"Vitamin C Serum","quantity":3,"channel":"App","MRP":1813,"discount_pct":5,"customer_segment":"Silver","revenue":5167.05},
+{"order_id":1039,"order_date":"2024-08-14","customer_id":"C117","city":"Ahmedabad","state":"GJ","category":"Skincare","product_name":"Vitamin C Serum","quantity":1,"channel":"Amazon","MRP":1813,"discount_pct":18,"customer_segment":"Silver","revenue":1486.66},
+{"order_id":1040,"order_date":"2024-01-19","customer_id":"C126","city":"Lucknow","state":"UP","category":"Haircare","product_name":"Scalp Serum","quantity":2,"channel":"Website","MRP":529,"discount_pct":5,"customer_segment":"Bronze","revenue":1005.1},
+{"order_id":1041,"order_date":"2024-07-02","customer_id":"C106","city":"Hyderabad","state":"TS","category":"Skincare","product_name":"Moisturizer","quantity":5,"channel":"Amazon","MRP":1358,"discount_pct":15,"customer_segment":"Gold","revenue":5771.5},
+{"order_id":1042,"order_date":"2024-03-20","customer_id":"C129","city":"Hyderabad","state":"TS","category":"Haircare","product_name":"Hair Mask","quantity":4,"channel":"WhatsApp","MRP":1047,"discount_pct":10,"customer_segment":"Bronze","revenue":3769.2},
+{"order_id":1043,"order_date":"2024-12-08","customer_id":"C127","city":"Hyderabad","state":"TS","category":"Wellness","product_name":"Vitamin D3","quantity":1,"channel":"WhatsApp","MRP":1449,"discount_pct":8,"customer_segment":"Bronze","revenue":1333.08},
+{"order_id":1044,"order_date":"2024-04-23","customer_id":"C106","city":"Kolkata","state":"WB","category":"Wellness","product_name":"Omega 3","quantity":2,"channel":"WhatsApp","MRP":1161,"discount_pct":8,"customer_segment":"Gold","revenue":2136.24},
+{"order_id":1045,"order_date":"2024-06-17","customer_id":"C108","city":"Delhi","state":"DL","category":"Wellness","product_name":"Omega 3","quantity":5,"channel":"Instagram","MRP":1161,"discount_pct":12,"customer_segment":"Gold","revenue":5108.4},
+{"order_id":1046,"order_date":"2024-01-15","customer_id":"C103","city":"Chennai","state":"TN","category":"Haircare","product_name":"Hair Oil","quantity":3,"channel":"WhatsApp","MRP":777,"discount_pct":5,"customer_segment":"Gold","revenue":2214.45},
+{"order_id":1047,"order_date":"2024-06-25","customer_id":"C123","city":"Pune","state":"MH","category":"Makeup","product_name":"Eyeliner","quantity":5,"channel":"App","MRP":1426,"discount_pct":5,"customer_segment":"Bronze","revenue":6773.5},
+{"order_id":1048,"order_date":"2024-05-10","customer_id":"C101","city":"Ahmedabad","state":"GJ","category":"Skincare","product_name":"Night Cream","quantity":5,"channel":"Instagram","MRP":1488,"discount_pct":10,"customer_segment":"Gold","revenue":6696.0},
+{"order_id":1049,"order_date":"2024-08-08","customer_id":"C102","city":"Pune","state":"MH","category":"Wellness","product_name":"Collagen Supplement","quantity":3,"channel":"Instagram","MRP":1453,"discount_pct":15,"customer_segment":"Gold","revenue":3705.15},
+{"order_id":1050,"order_date":"2024-07-25","customer_id":"C122","city":"Jaipur","state":"RJ","category":"Haircare","product_name":"Hair Mask","quantity":4,"channel":"App","MRP":1047,"discount_pct":10,"customer_segment":"Silver","revenue":3769.2}
+];
+const CUSTOMER_NAMES = {"C101": "Priya Sharma", "C102": "Rahul Mehta", "C103": "Ananya Kapoor", "C104": "Deepak Verma", "C105": "Meera Patel", "C106": "Sanjay Rao", "C107": "Kavya Nair", "C108": "Arjun Tiwari", "C109": "Divya Lal", "C111": "Nikhil Bose", "C112": "Shreya Joshi", "C113": "Rohit Chopra", "C116": "Pooja Desai", "C117": "Amit Gupta", "C118": "Neha Hegde", "C119": "Vikram Singh", "C121": "Ritu Agarwal", "C122": "Manish Soni", "C123": "Lakshmi Iyer", "C124": "Farhan Sheikh", "C125": "Zara Mirza", "C126": "Tarun Kumar", "C127": "Sunita Reddy", "C128": "Harish Pillai", "C129": "Nandini Das", "C130": "Chirag Shah"};   // customer_id -> full name (lookup only)
+
+// ---------- helpers ----------
+const $ = s => document.querySelector(s);
+const esc = v => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const inr = n => '₹' + n.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+const int = n => n.toLocaleString('en-IN', {maximumFractionDigits:0});   // counts only (orders, units)
+const pct = n => n.toFixed(2) + '%';
+const axisFmt = (f, v) => f(v).replace(/\.00(?=%|$)/, '');   // axis gridlines only: drops a bare .00, never hides real decimals
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const monLabel = m => MON[+m.slice(5) - 1] + ' ' + m.slice(0, 4);
+const monthOf = r => r.order_date.slice(0, 7);
+const uniq = f => [...new Set(ANALYTICS_DATA.map(f))].sort();
+const MONTHS = uniq(monthOf);
+
+// ---------- filter state + the ONE filter function ----------
+const state = {channel:new Set(), category:new Set(), product:'', segment:'', from:MONTHS[0], to:MONTHS[MONTHS.length-1]};
+function applyFilters(rows, s) {
+  const lo = s.from <= s.to ? s.from : s.to, hi = s.from <= s.to ? s.to : s.from;
+  return rows.filter(r =>
+    (!s.channel.size || s.channel.has(r.channel)) &&
+    (!s.category.size || s.category.has(r.category)) &&
+    (!s.product || r.product_name === s.product) &&
+    (!s.segment || r.customer_segment === s.segment) &&
+    monthOf(r) >= lo && monthOf(r) <= hi);
+}
+
+// ---------- aggregation (shared by all charts) ----------
+function group(rows, key) {
+  const m = {};
+  rows.forEach(r => {
+    const g = m[r[key]] ||= {k:r[key], rev:0, ord:0, units:0, disc:0};
+    g.rev += r.revenue; g.ord++; g.units += r.quantity; g.disc += r.discount_pct;
+  });
+  return Object.values(m).map(g => ({...g, avgDisc:g.disc/g.ord, aov:g.rev/g.ord}));
+}
+
+// ---------- chart specs ----------
+const P = ['#7c8cff','#34d3a8','#ffb454','#ff6b8b','#4cc9f0','#b48cff','#9ad35a','#f08a5d','#5ea8ff','#e0a3ff'];
+const SPECS = [
+  {sec:'Channel', by:'channel', title:'Revenue by channel', v:'rev', f:inr, c:P[0]},
+  {sec:'Channel', by:'channel', title:'Revenue share', v:'rev', f:inr, type:'doughnut'},
+  {sec:'Channel', by:'channel', title:'Orders by channel', v:'ord', f:int, c:P[1]},
+  {sec:'Channel', by:'channel', title:'Avg discount % by channel', v:'avgDisc', f:pct, c:P[2]},
+  {sec:'Product (top 10 by revenue)', by:'product_name', title:'Revenue', v:'rev', f:inr, c:P[0], top:10, h:1},
+  {sec:'Product (top 10 by revenue)', by:'product_name', title:'Units sold', v:'units', f:int, c:P[1], top:10, h:1},
+  {sec:'Product (top 10 by revenue)', by:'product_name', title:'Orders', v:'ord', f:int, c:P[4], top:10, h:1},
+  {sec:'Product (top 10 by revenue)', by:'product_name', title:'Avg discount %', v:'avgDisc', f:pct, c:P[2], top:10, h:1},
+  {sec:'Category', by:'category', title:'Revenue by category', v:'rev', f:inr, c:P[0]},
+  {sec:'Category', by:'category', title:'Orders by category', v:'ord', f:int, c:P[1]},
+  {sec:'Category', by:'category', title:'Avg order value by category', v:'aov', f:inr, c:P[3]}
+];
+
+// ---------- shared color maps (one color per category, identical on every chart) ----------
+const CHANNEL_COLORS  = {App:'#7c8cff', Amazon:'#ffb454', Instagram:'#ff6b8b', Website:'#34d3a8', WhatsApp:'#4cc9f0'};
+const CATEGORY_COLORS = {Haircare:'#9ad35a', Makeup:'#e0a3ff', Skincare:'#f08a5d', Wellness:'#5ea8ff'};
+const PRODUCT_COLORS  = {};   // stable per product: alphabetical position, spread around the hue wheel
+uniq(r => r.product_name).forEach((p, i) => PRODUCT_COLORS[p] = `hsl(${Math.round(i * 137.5) % 360} 65% 62%)`);
+const COLOR_MAPS = {channel:CHANNEL_COLORS, category:CATEGORY_COLORS, product_name:PRODUCT_COLORS};
+const colorFor = (by, k) => (COLOR_MAPS[by] || {})[k] || '#8b93a7';
+
+const hasChart = typeof Chart !== 'undefined';
+const NOTES = ['Net revenue (₹)','Share of net revenue','Count of order rows','Mean of order discount %',
+  'Net revenue (₹)','Units (sum of quantity)','Count of order rows','Mean of order discount %',
+  'Net revenue (₹)','Count of order rows','Revenue ÷ orders (₹)'];
+const SECS = {'Channel':['📡','Channel Analysis',''], 'Product (top 10 by revenue)':['🛍️','Product Analysis','Top 10 by revenue'], 'Category':['🗂️','Category Analysis','']};
+
+function buildChartShells() {
+  if (!hasChart) {
+    $('#notice').innerHTML = '<div class="notice">Charts could not load (Chart.js unavailable, possibly offline). KPIs and the data table below still work.</div>';
+    return;
+  }
+  Chart.defaults.color = '#8b93a7';
+  Chart.defaults.borderColor = '#252b3b';
+  Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+  let last = '', grid = null;
+  SPECS.forEach((s, i) => {
+    if (s.sec !== last) {
+      last = s.sec;
+      const [ic, name, note] = SECS[s.sec];
+      const h = document.createElement('h2'); h.textContent = ic + ' ' + name;
+      if (note) { const sm = document.createElement('small'); sm.textContent = note; h.append(sm); }
+      $('#charts').append(h);
+      grid = document.createElement('div'); grid.className = 'grid'; $('#charts').append(grid);
+    }
+    const card = document.createElement('div'); card.className = 'card';
+    const hd = document.createElement('div'); hd.className = 'ch';
+    const t = document.createElement('h3'); t.textContent = s.title;
+    const nt = document.createElement('span'); nt.textContent = NOTES[i];
+    hd.append(t, nt);
+    const cv = document.createElement('div'); cv.className = 'cv';
+    const c = document.createElement('canvas'); cv.append(c); card.append(hd, cv);
+    if (s.by === 'channel' && !s.type) {   // color key under each channel bar chart
+      const lg = document.createElement('div'); lg.className = 'leg';
+      Object.entries(CHANNEL_COLORS).forEach(([k, col]) => {
+        const it = document.createElement('span'), dot = document.createElement('i');
+        dot.style.background = col; it.append(dot, k); lg.append(it);
+      });
+      card.append(lg);
+    }
+    grid.append(card);
+    const dough = s.type === 'doughnut';
+    const ax = {ticks:{callback:v => axisFmt(s.f, v)}, beginAtZero:true, grid:{color:'#252b3b'}}, cat = {grid:{display:false}};
+    s.chart = new Chart(c, {
+      type: dough ? 'doughnut' : 'bar',
+      data: {labels:[], datasets:[{data:[], backgroundColor: [], borderWidth:0, borderRadius: dough ? 0 : 4}]},
+      options: {
+        indexAxis: s.h ? 'y' : 'x', responsive:true, maintainAspectRatio:false,
+        plugins: {legend:{display:dough, position:'bottom'}, tooltip:{callbacks:{label: x => ' ' + s.f(dough ? x.raw : x.parsed[s.h ? 'x' : 'y'])}}},
+        scales: dough ? {} : (s.h ? {x:ax, y:cat} : {x:cat, y:ax})
+      }
+    });
+  });
+}
+
+function renderCharts(rows) {
+  if (!hasChart) return;
+  const cache = {};
+  SPECS.forEach(s => {
+    const g = cache[s.by] ||= group(rows, s.by);
+    const sorted = [...g].sort((a, b) => s.top ? b.rev - a.rev : b[s.v] - a[s.v]).slice(0, s.top || 99);
+    s.chart.data.labels = sorted.map(x => x.k);
+    s.chart.data.datasets[0].data = sorted.map(x => x[s.v]);
+    s.chart.data.datasets[0].backgroundColor = sorted.map(x => colorFor(s.by, x.k));
+    s.chart.update();
+  });
+}
+
+function renderKpis(rows) {
+  const rev = rows.reduce((a, r) => a + r.revenue, 0), n = rows.length;
+  const IC = {   // static, trusted SVG paths
+    rev:'<path d="M6 4h12M6 9h12M9 4c6 0 6 5 0 5l6 11"/>',
+    ord:'<path d="M6 7h12l1 13H5L6 7zM9 7a3 3 0 0 1 6 0"/>',
+    aov:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3zM9 8h6M9 12h6"/>',
+    units:'<path d="M3 7l9-4 9 4-9 4-9-4zM3 7v10l9 4 9-4V7M12 11v10"/>',
+    disc:'<path d="M20 12l-8 8-9-9V3h8l9 9zM7.5 7.5h.01"/>'};
+  const items = [
+    ['Total Revenue', inr(rev), 'Net after channel discounts', '#34d3a8', 'rev'],
+    ['Total Orders', int(n), 'Count of order rows', '#5ea8ff', 'ord'],
+    ['Avg Order Value', n ? inr(rev / n) : '—', 'Revenue ÷ Orders', '#ffb454', 'aov'],
+    ['Units Sold', int(rows.reduce((a, r) => a + r.quantity, 0)), 'Sum of quantity', '#b48cff', 'units'],
+    ['Avg Discount', n ? pct(rows.reduce((a, r) => a + r.discount_pct, 0) / n) : '—', 'Mean discount % per order', '#ff6b8b', 'disc']
+  ];
+  $('#kpis').innerHTML = items.map(([l, v, c, k, i]) => `<div class="card kpi" style="--k:${k}"><span class="ic"><svg viewBox="0 0 24 24">${IC[i]}</svg></span><div class="l">${esc(l)}</div><div class="v">${esc(v)}</div><div class="c">${esc(c)}</div></div>`).join('');
+  const t = `Showing ${n} of ${ANALYTICS_DATA.length} orders`;
+  $('#showing').textContent = t; $('#tcnt').textContent = n + ' rows';
+}
+
+const SEG = {Gold:'gold', Silver:'silver', Bronze:'bronze'};
+const COLS = [['order_id','Order'],['order_date','Date'],['customer','Customer'],['customer_segment','Segment'],['city','City'],['category','Category'],['product_name','Product'],['channel','Channel'],['quantity','Qty',1],['MRP','MRP',1],['discount_pct','Disc %',1],['revenue','Revenue',1]];
+function cell(r, k) {
+  if (k === 'customer') return esc(CUSTOMER_NAMES[r.customer_id] || r.customer_id);
+  if (k === 'customer_segment') return `<span class="pill ${SEG[r[k]] || ''}">${esc(r[k])}</span>`;
+  if (k === 'revenue' || k === 'MRP') return esc(inr(r[k]));
+  if (k === 'discount_pct') return esc(pct(r[k]));
+  return esc(r[k]);
+}
+function renderTable(rows) {
+  $('#thead').innerHTML = '<tr>' + COLS.map(c => `<th class="${c[2] ? 'n' : ''}">${esc(c[1])}</th>`).join('') + '</tr>';
+  const sorted = [...rows].sort((a, b) => b.order_date.localeCompare(a.order_date));
+  $('#tbody').innerHTML = sorted.length
+    ? sorted.map(r => '<tr>' + COLS.map(c => `<td class="${c[2] ? 'n' : ''}">${cell(r, c[0])}</td>`).join('') + '</tr>').join('')
+    : `<tr><td class="empty" colspan="${COLS.length}">No orders match the current filters.</td></tr>`;
+}
+
+function render() {
+  const rows = applyFilters(ANALYTICS_DATA, state);   // single source for everything
+  renderKpis(rows); renderCharts(rows); renderTable(rows);
+}
+
+// ---------- filter UI ----------
+function fillSelect(id, opts) {   // opts: [value, label]
+  $('#f-' + id).innerHTML = opts.map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join('');
+}
+function initFilters() {
+  const ch = uniq(r => r.channel), ca = uniq(r => r.category);
+  fillSelect('channel', ch.map(v => [v, v])); fillSelect('category', ca.map(v => [v, v]));
+  $('#f-channel').size = ch.length; $('#f-category').size = ca.length;
+  fillSelect('product', [['', 'All products'], ...uniq(r => r.product_name).map(p => [p, p])]);
+  fillSelect('segment', [['', 'All'], ['Gold','Gold'], ['Silver','Silver'], ['Bronze','Bronze']]);
+  const mo = MONTHS.map(m => [m, monLabel(m)]);
+  fillSelect('from', mo); fillSelect('to', mo);
+  ['channel','category'].forEach(k => $('#f-' + k).onchange = e => { state[k] = new Set([...e.target.selectedOptions].map(o => o.value)); render(); });
+  ['product','segment','from','to'].forEach(k => $('#f-' + k).onchange = e => { state[k] = e.target.value; render(); });
+  $('#reset').onclick = resetFilters;
+  const n = k => new Set(ANALYTICS_DATA.map(r => r[k])).size;
+  $('#dsub').textContent = `FY ${MONTHS[0].slice(0,4)} · ${ANALYTICS_DATA.length} Orders · ${n('product_name')} Products · ${n('category')} Categories · ${n('channel')} Channels`;
+  resetFilters();
+}
+function resetFilters() {
+  Object.assign(state, {product:'', segment:'', from:MONTHS[0], to:MONTHS[MONTHS.length-1]});
+  state.channel = new Set(); state.category = new Set();
+  ['channel','category'].forEach(k => [...$('#f-' + k).options].forEach(o => o.selected = false));
+  ['product','segment','from','to'].forEach(k => $('#f-' + k).value = state[k]);
+  render();
+}
+
+buildChartShells();
+initFilters();
+</script>
+</body>
+</html>
